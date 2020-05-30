@@ -1,12 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chatflutter/chat_screen.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
-  Firestore.instance
-      .collection('colection')
-      .document('document')
-      .setData({'key': 'value'});
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Container(),
+      home: ChatScreen(),
     );
   }
 }

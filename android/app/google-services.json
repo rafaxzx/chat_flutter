@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "796024872118-lgvu2kjb04ks2s8g2f85v10km2qhhh95.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gmail.rafael.dev.mobile.chatflutter",
+            "certificate_hash": "771deec7953ff6dcb6063ecba3d917e7bd47e37e"
+          }
+        },
+        {
           "client_id": "796024872118-qngpddi96h4i5j3u2k96k1i09rfajqlq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
