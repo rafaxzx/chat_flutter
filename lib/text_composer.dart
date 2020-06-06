@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TextComposer extends StatefulWidget {
   TextComposer(this._sendMessage);
 
-  final void Function(String) _sendMessage;
+  final void Function({String message, File imgFile}) _sendMessage;
 
   @override
   _TextComposerState createState() => _TextComposerState();
@@ -14,6 +17,7 @@ class _TextComposerState extends State<TextComposer> {
   final TextEditingController _txtControllerMessage = TextEditingController();
   //Variables
   bool _isComposing = false;
+  final _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,20 @@ class _TextComposerState extends State<TextComposer> {
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.camera_alt),
-            onPressed: () {},
+            onPressed: () async {
+              final _pickedImage =
+                  await _picker.getImage(source: ImageSource.camera);
+              final _pickedImageFile = File(_pickedImage.path);
+              if (_pickedImageFile == null) return;
+              widget._sendMessage(
+                  imgFile: _pickedImageFile,
+                  message: _txtControllerMessage.text.isNotEmpty
+                      ? _txtControllerMessage.text
+                      : null);
+              setState(() {
+                _reset();
+              });
+            },
           ),
           Expanded(
             child: TextField(
@@ -38,7 +55,7 @@ class _TextComposerState extends State<TextComposer> {
               onSubmitted: (text) {
                 //Chama a função passada por parâmetro com o texto do TextField
                 //depois limpa o campo e reseta o estado do icone
-                widget._sendMessage(text);
+                widget._sendMessage(message: text);
                 _reset();
               },
             ),
@@ -52,7 +69,7 @@ class _TextComposerState extends State<TextComposer> {
                 ? () {
                     //Chama a função passada por parâmetro com o texto do TextField
                     //depois limpa o campo e reseta o estado do icone
-                    widget._sendMessage(_txtControllerMessage.text);
+                    widget._sendMessage(message: _txtControllerMessage.text);
                     _reset();
                   }
                 : null,
