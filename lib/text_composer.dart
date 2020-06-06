@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
 class TextComposer extends StatefulWidget {
+  TextComposer(this._sendMessage);
+
+  final void Function(String) _sendMessage;
+
   @override
   _TextComposerState createState() => _TextComposerState();
 }
 
 class _TextComposerState extends State<TextComposer> {
+  //Controllers
+  final TextEditingController _txtControllerMessage = TextEditingController();
   //Variables
   bool _isComposing = false;
 
@@ -21,6 +27,7 @@ class _TextComposerState extends State<TextComposer> {
           ),
           Expanded(
             child: TextField(
+              controller: _txtControllerMessage,
               decoration:
                   InputDecoration.collapsed(hintText: 'Enviar uma mensagem'),
               onChanged: (text) {
@@ -28,7 +35,12 @@ class _TextComposerState extends State<TextComposer> {
                   _isComposing = text.isNotEmpty;
                 });
               },
-              onSubmitted: (text) {},
+              onSubmitted: (text) {
+                //Chama a função passada por parâmetro com o texto do TextField
+                //depois limpa o campo e reseta o estado do icone
+                widget._sendMessage(text);
+                _reset();
+              },
             ),
           ),
           IconButton(
@@ -36,10 +48,24 @@ class _TextComposerState extends State<TextComposer> {
             icon: Icon(
               Icons.send,
             ),
-            onPressed: _isComposing ? () {} : null,
+            onPressed: _isComposing
+                ? () {
+                    //Chama a função passada por parâmetro com o texto do TextField
+                    //depois limpa o campo e reseta o estado do icone
+                    widget._sendMessage(_txtControllerMessage.text);
+                    _reset();
+                  }
+                : null,
           )
         ],
       ),
     );
+  }
+
+  void _reset() {
+    _txtControllerMessage.clear();
+    setState(() {
+      _isComposing = false;
+    });
   }
 }
