@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TextComposer extends StatefulWidget {
-  TextComposer(this._sendMessage);
-
   final void Function({String message, File imgFile}) _sendMessage;
+
+  TextComposer(this._sendMessage);
 
   @override
   _TextComposerState createState() => _TextComposerState();
 }
 
 class _TextComposerState extends State<TextComposer> {
-  //Controllers
+  //Controles
   final TextEditingController _txtControllerMessage = TextEditingController();
-  //Variables
+  //Variáveis
   bool _isComposing = false;
   final _picker = ImagePicker();
 
@@ -28,15 +28,10 @@ class _TextComposerState extends State<TextComposer> {
           IconButton(
             icon: Icon(Icons.camera_alt),
             onPressed: () async {
-              final _pickedImage =
-                  await _picker.getImage(source: ImageSource.camera);
+              final _pickedImage = await _picker.getImage(source: ImageSource.camera);
               final _pickedImageFile = File(_pickedImage.path);
               if (_pickedImageFile == null) return;
-              widget._sendMessage(
-                  imgFile: _pickedImageFile,
-                  message: _txtControllerMessage.text.isNotEmpty
-                      ? _txtControllerMessage.text
-                      : null);
+              widget._sendMessage(imgFile: _pickedImageFile);
               setState(() {
                 _reset();
               });
@@ -45,8 +40,7 @@ class _TextComposerState extends State<TextComposer> {
           Expanded(
             child: TextField(
               controller: _txtControllerMessage,
-              decoration:
-                  InputDecoration.collapsed(hintText: 'Enviar uma mensagem'),
+              decoration: InputDecoration.collapsed(hintText: 'Enviar uma mensagem'),
               onChanged: (text) {
                 setState(() {
                   _isComposing = text.isNotEmpty;
