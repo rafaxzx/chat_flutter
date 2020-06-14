@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   FirebaseUser _currentUser;
   final GlobalKey<ScaffoldState> _keyScaffoldState = GlobalKey<ScaffoldState>();
-  bool _isLoading;
+  bool _isLoading = false;
 
   //Funções
   void _sendMessage({String message, File imgFile}) async {
@@ -55,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (imgFile != null) {
       StorageUploadTask task = FirebaseStorage.instance
           .ref()
-          .child(DateTime.now().millisecondsSinceEpoch.toString())
+          .child(user.uid + DateTime.now().millisecondsSinceEpoch.toString())
           .putFile(imgFile);
 
       setState(() {
