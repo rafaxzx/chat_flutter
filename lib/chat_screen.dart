@@ -21,7 +21,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     //Criar um listener para verificar quando o user mudar e obter esse user
     FirebaseAuth.instance.onAuthStateChanged.listen((user) {
-      _currentUser = user;
+      setState(() {
+        _currentUser = user;
+      });
     });
   }
 
@@ -29,6 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   FirebaseUser _currentUser;
   final GlobalKey<ScaffoldState> _keyScaffoldState = GlobalKey<ScaffoldState>();
+  bool _isLoading;
 
   //Funções
   void _sendMessage({String message, File imgFile}) async {
@@ -45,7 +48,8 @@ class _ChatScreenState extends State<ChatScreen> {
     Map<String, dynamic> data = {
       'uid': user.uid,
       'senderName': user.displayName,
-      'senderPhotoUrl': user.photoUrl
+      'senderPhotoUrl': user.photoUrl,
+      'time': Timestamp.now()
     };
 
     if (imgFile != null) {
@@ -53,9 +57,18 @@ class _ChatScreenState extends State<ChatScreen> {
           .ref()
           .child(DateTime.now().millisecondsSinceEpoch.toString())
           .putFile(imgFile);
+
+      setState(() {
+        _isLoading = true;
+      });
+
       StorageTaskSnapshot taskSnapshot = await task.onComplete;
       String url = await taskSnapshot.ref.getDownloadURL();
       data['imgUrl'] = url;
+
+      setState(() {
+        _isLoading = false;
+      });
     }
 
     if (message != null) data['message'] = message;
@@ -100,14 +113,27 @@ class _ChatScreenState extends State<ChatScreen> {
       key: _keyScaffoldState,
       appBar: AppBar(
         centerTitle: true,
+        title: Text(_currentUser != null ? 'Olá, ${_currentUser.displayName}' : 'Chat App'),
         elevation: 0.0,
-        title: Text('Olá'),
+        actions: <Widget>[
+          _currentUser != null
+              ? IconButton(
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: () {
+                    FirebaseAuth.instance.signOut();
+                    googleSignIn.signOut();
+                    _keyScaffoldState.currentState
+                        .showSnackBar(SnackBar(content: Text('Você fez logoff')));
+                  },
+                )
+              : Container()
+        ],
       ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance.collection('messages').snapshots(),
+                stream: Firestore.instance.collection('messages').orderBy('time').snapshots(),
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
@@ -122,11 +148,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           reverse: true,
                           itemCount: documents.length,
                           itemBuilder: (context, index) {
-                            return ChatMessage(documents[index].data, true);
+                            return ChatMessage(documents[index].data,
+                                documents[index].data['uid'] == _currentUser?.uid);
                           });
                   }
                 }),
           ),
+          _isLoading ? LinearProgressIndicator() : Container(),
           TextComposer(_sendMessage),
         ],
       ),
